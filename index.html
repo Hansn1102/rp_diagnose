@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>키워드 수요 진단 · 리뷰플레이스</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --paper:#FAF8F3; --card:#FFFEFB; --ink:#1A1C22; --ink-soft:#6B695F;
+    --emerald:#1C6E5A; --emerald-soft:#3E9E84; --red:#D94B2B;
+    --taupe:#B7AE9C; --taupe-deep:#8A8270; --line:#E6E0D3; --deep:#0F3B30;
+    --display:"Space Grotesk","Pretendard",-apple-system,sans-serif;
+    --body:"Pretendard",-apple-system,"Apple SD Gothic Neo",sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);font-family:var(--body);
+    -webkit-font-smoothing:antialiased;padding:0 0 80px}
+  .wrap{max-width:900px;margin:0 auto;padding:0 24px}
+  header{padding-top:52px}
+  .eyebrow{font-family:var(--display);font-weight:600;font-size:12px;letter-spacing:2px;
+    text-transform:uppercase;color:var(--emerald)}
+  h1{font-family:var(--display);font-weight:700;font-size:44px;line-height:1.06;
+    letter-spacing:-1.2px;margin:14px 0 10px}
+  .sub{color:var(--ink-soft);font-size:15px;max-width:560px;line-height:1.5}
+  /* search */
+  .searchrow{display:flex;gap:10px;margin-top:26px}
+  .ibox{flex:1;display:flex;align-items:center;gap:10px;background:var(--card);
+    border:1px solid var(--line);border-radius:12px;padding:0 16px}
+  .ibox svg{flex-shrink:0}
+  .ibox input{flex:1;border:none;outline:none;background:transparent;
+    font-family:var(--body);font-size:16px;padding:15px 0;color:var(--ink)}
+  .gobtn{background:var(--ink);color:#fff;border:none;border-radius:12px;
+    padding:0 24px;font-family:var(--display);font-weight:600;font-size:15px;
+    cursor:pointer;display:flex;align-items:center;gap:8px;transition:opacity .15s}
+  .gobtn:hover{opacity:.88}
+  .chips{display:flex;gap:8px;margin-top:13px;flex-wrap:wrap;align-items:center}
+  .chips .lbl{font-size:12px;color:var(--ink-soft)}
+  .chip{background:transparent;border:1px solid var(--line);border-radius:20px;
+    padding:6px 13px;font-size:13px;font-family:var(--body);color:var(--ink);cursor:pointer}
+  .chip:hover{border-color:var(--taupe-deep)}
+  /* result */
+  #result{margin-top:38px;display:none}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;
+    padding:26px 28px;margin-top:16px}
+  .hero{background:var(--ink);color:#fff;border-radius:18px;padding:30px 32px;
+    display:flex;align-items:center;gap:30px;flex-wrap:wrap}
+  .hero .big{font-family:var(--display);font-weight:700;font-size:60px;line-height:.95;
+    color:var(--emerald-soft)}
+  .hero .biglbl{font-size:12px;color:#B7AE9C;margin-bottom:8px}
+  .hero .unit{font-size:18px;color:#8A8270;font-family:var(--display);margin-left:4px}
+  .badges{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+  .badge{font-size:13px;font-family:var(--body);padding:6px 12px;border-radius:8px;
+    background:rgba(255,255,255,.08);color:#E6E0D3}
+  .badge b{color:#fff;font-family:var(--display)}
+  .grid{display:flex;gap:16px;flex-wrap:wrap}
+  .stat{flex:1;min-width:130px}
+  .stat .l{font-size:12px;color:var(--ink-soft);margin-bottom:5px}
+  .stat .v{font-family:var(--display);font-weight:600;font-size:28px;line-height:1}
+  .stat .s{font-size:12px;color:var(--ink-soft);margin-top:5px}
+  h3{font-family:var(--display);font-weight:600;font-size:18px;display:flex;
+    align-items:center;gap:8px;margin-bottom:16px}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--emerald)}
+  /* device bar */
+  .devbar{display:flex;height:34px;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+  .devbar .pc{background:var(--taupe-deep);display:flex;align-items:center;justify-content:center}
+  .devbar .mo{background:var(--emerald);display:flex;align-items:center;justify-content:center}
+  .devbar span{color:#fff;font-size:12px;font-weight:600;font-family:var(--display)}
+  .devleg{display:flex;gap:18px;margin-top:12px;font-size:12px;color:var(--ink-soft)}
+  .devleg i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+  /* trend svg */
+  .trend svg{width:100%;height:200px;display:block}
+  /* related table */
+  .kw{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line)}
+  .kw:first-child{border-top:none}
+  .kw .name{width:160px;font-size:14px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .kw .barwrap{flex:1;height:9px;background:#F0EBDE;border-radius:5px;overflow:hidden}
+  .kw .bar{height:100%;background:var(--emerald);border-radius:5px}
+  .kw .num{width:78px;text-align:right;font-family:var(--display);font-weight:600;font-size:14px}
+  .kw .cmp{width:44px;text-align:right;font-size:11px;color:var(--ink-soft)}
+  /* note */
+  .note{background:#F1F6F3;border:1px solid #D6E6DF;border-radius:18px;
+    padding:22px 26px;margin-top:16px;display:flex;gap:14px}
+  .note .ic{flex-shrink:0;margin-top:1px}
+  .note p{font-size:14px;line-height:1.65}
+  .note .t{font-family:var(--display);font-weight:600;font-size:15px;color:var(--emerald);margin-bottom:6px}
+  .actions{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}
+  .pdf{background:var(--emerald);color:#fff;border:none;border-radius:10px;padding:12px 20px;
+    font-family:var(--display);font-weight:600;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:8px}
+  .foot{font-size:11px;color:var(--ink-soft);text-align:center;margin-top:20px}
+  .demo-tag{display:inline-block;background:#FBF3EE;color:var(--red);font-size:11px;
+    padding:3px 9px;border-radius:6px;margin-left:8px;font-weight:600}
+  /* states */
+  .loading,.error{text-align:center;padding:50px 0;color:var(--ink-soft);font-size:15px}
+  .error{color:var(--red)}
+  .spin{width:22px;height:22px;border:2px solid var(--line);border-top-color:var(--emerald);
+    border-radius:50%;display:inline-block;animation:s .7s linear infinite;vertical-align:-4px;margin-right:10px}
+  @keyframes s{to{transform:rotate(360deg)}}
+  /* growth simulator */
+  .sim{background:var(--deep);color:#fff}
+  .sim h3{color:#fff} .sim .dot{background:var(--emerald-soft)}
+  .sim .h3sub{font-size:12px;color:#9FD3C4;font-weight:400}
+  .sim-controls{display:flex;gap:26px;flex-wrap:wrap}
+  .ctrl{flex:1;min-width:210px}
+  .ctrl label{font-size:13px;color:#9FD3C4;display:flex;justify-content:space-between;margin-bottom:9px}
+  .ctrl label b{color:#fff;font-family:var(--display);font-size:15px}
+  .ctrl input[type=range]{width:100%;accent-color:var(--emerald-soft);cursor:pointer}
+  .sim-out{display:flex;gap:16px;flex-wrap:wrap;margin-top:24px}
+  .outbox{flex:1;min-width:140px;background:rgba(255,255,255,.06);border-radius:12px;padding:16px 18px}
+  .outbox .l{font-size:12px;color:#9FD3C4;margin-bottom:7px}
+  .outbox .v{font-family:var(--display);font-weight:700;font-size:30px;line-height:1}
+  .outbox.hero-out{background:var(--emerald)}
+  .capbar{height:9px;background:rgba(255,255,255,.12);border-radius:5px;overflow:hidden;margin-top:9px}
+  .capbar div{height:100%;background:var(--emerald-soft);border-radius:5px;transition:width .25s}
+  .assume{margin-top:24px;border-top:1px solid rgba(255,255,255,.13);padding-top:18px}
+  .assume .at{font-size:11px;color:#9FD3C4;margin-bottom:13px;font-family:var(--display);letter-spacing:1.3px;text-transform:uppercase}
+  .assume-row{display:flex;gap:16px;flex-wrap:wrap}
+  .assume-row .ai{display:flex;align-items:center;gap:7px;font-size:13px;color:#E6E0D3}
+  .assume-row .ai input{width:54px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);
+    border-radius:6px;color:#fff;padding:5px 7px;font-family:var(--display);text-align:center;font-size:14px}
+  .formula{margin-top:17px;font-size:12.5px;color:#9FD3C4;line-height:1.75}
+  .formula b{color:#fff;font-family:var(--display)}
+  .simwarn{display:flex;gap:10px;align-items:flex-start;background:rgba(217,75,43,.16);
+    border:1px solid rgba(217,75,43,.45);border-radius:12px;padding:13px 15px;margin:18px 0 4px}
+  .simwarn svg{flex-shrink:0;margin-top:1px}
+  .simwarn p{font-size:12.5px;line-height:1.6;color:#FBD9CE}
+  .simwarn b{color:#fff}
+  .simfoot{font-size:11.5px;color:#7FA89B;margin-top:14px;line-height:1.6}
+  @media print{.searchrow,.chips,.actions,.foot{display:none!important}
+    body{background:#fff}.card,.hero,.note{box-shadow:none}}
+  @media(max-width:560px){h1{font-size:34px}.hero .big{font-size:46px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">리뷰플레이스 · 키워드 수요 진단</div>
+    <h1>이 키워드, 지금<br>얼마나 검색되고 있나.</h1>
+    <p class="sub">키워드를 넣으면 네이버 월간 검색량·디바이스 비중·12개월 수요 추이와, 함께 잡을 수 있는 연관 키워드 기회맵을 보여줍니다.</p>
+  </header>
+
+  <div class="searchrow">
+    <div class="ibox">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B695F" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+      <input id="kw" placeholder="예: 닭가슴살" />
+    </div>
+    <button class="gobtn" onclick="run()">진단하기
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </button>
+  </div>
+  <div class="chips">
+    <span class="lbl">예시</span>
+    <button class="chip" onclick="run('닭가슴살')">닭가슴살</button>
+    <button class="chip" onclick="run('임산부 붓기차')">임산부 붓기차</button>
+    <button class="chip" onclick="run('비건 단백질')">비건 단백질</button>
+  </div>
+
+  <div id="result"></div>
+</div>
+
+<script>
+const fmt = n => (n||0).toLocaleString();
+let _D = null;  // 시뮬레이터가 참조하는 현재 진단 데이터
+
+// ── 데모 폴백 데이터 (API 미배포/실패 시 디자인 미리보기용) ──
+function demoData(kw){
+  const seed=[...kw].reduce((a,c)=>a+c.charCodeAt(0),0);
+  const months=["7월","8월","9월","10월","11월","12월","1월","2월","3월","4월","5월","6월"];
+  let b=50+seed%30; const trend=months.map((m,i)=>{b=b*1.01+((seed>>i)%9)-4;return{period:m,ratio:Math.max(20,Math.round(b))}});
+  const tot=4800+seed*37%240000, mo=Math.round(tot*0.78);
+  const rel=["요리","효능","추천","후기","다이어트","부작용","가격","비교","순위","brands"].map((s,i)=>({
+    keyword:kw+" "+s, monthly:Math.round(tot*(0.5-i*0.045)*(0.6+(seed%10)/20)), comp:["높음","중간","낮음"][(seed+i)%3]
+  })).filter(r=>r.monthly>0);
+  return{keyword:kw,monthly_total:tot,monthly_pc:tot-mo,monthly_mobile:mo,comp_idx:["높음","중간","낮음"][seed%3],
+    growth_pct:-5+seed%45,device_split:{pc:Math.round((tot-mo)/tot*100),mobile:Math.round(mo/tot*100)},
+    trend,related:rel,note:"안정적 수요가 있는 키워드입니다. 연관 키워드 묶음으로 노출 폭을 넓히는 접근을 권합니다.",_demo:true};
+}
+
+async function run(preset){
+  const kw=(preset||document.getElementById('kw').value).trim();
+  if(!kw)return;
+  document.getElementById('kw').value=kw;
+  const R=document.getElementById('result');
+  R.style.display='block';
+  R.innerHTML='<div class="loading"><span class="spin"></span>네이버 데이터 조회 중…</div>';
+  let data, demo=false;
+  try{
+    const res=await fetch('/api/diagnose?keyword='+encodeURIComponent(kw));
+    if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error||res.status)}
+    data=await res.json();
+    if(data.error)throw new Error(data.error);
+  }catch(err){ data=demoData(kw); demo=true; }
+  render(data,demo);
+  R.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function compColor(c){return c==='높음'?'var(--red)':c==='낮음'?'var(--emerald)':'var(--taupe-deep)'}
+
+function trendSVG(trend){
+  const W=860,H=200,pad=24;
+  const vals=trend.map(t=>t.ratio),max=Math.max(...vals,1),min=Math.min(...vals,0);
+  const x=i=>pad+i*(W-pad*2)/(trend.length-1);
+  const y=v=>H-28-(v-min)/(max-min||1)*(H-56);
+  let line=trend.map((t,i)=>(i?'L':'M')+x(i).toFixed(1)+' '+y(t.ratio).toFixed(1)).join(' ');
+  let area=line+` L${x(trend.length-1).toFixed(1)} ${H-28} L${x(0).toFixed(1)} ${H-28} Z`;
+  let labels=trend.map((t,i)=>i%2===0?`<text x="${x(i)}" y="${H-8}" font-size="11" fill="#6B695F" text-anchor="middle" font-family="var(--body)">${t.period}</text>`:'').join('');
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+    <defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1C6E5A" stop-opacity="0.32"/>
+      <stop offset="100%" stop-color="#1C6E5A" stop-opacity="0"/></linearGradient></defs>
+    <path d="${area}" fill="url(#ag)"/>
+    <path d="${line}" fill="none" stroke="#1C6E5A" stroke-width="2.2"/>
+    ${labels}</svg>`;
+}
+
+function render(d,demo){
+  _D = d;
+  const maxRel=Math.max(...(d.related.map(r=>r.monthly)),1);
+  const relRows=d.related.map(r=>`
+    <div class="kw">
+      <div class="name">${r.keyword}</div>
+      <div class="barwrap"><div class="bar" style="width:${Math.max(3,r.monthly/maxRel*100)}%"></div></div>
+      <div class="num">${fmt(r.monthly)}</div>
+      <div class="cmp" style="color:${compColor(r.comp)}">${r.comp||'-'}</div>
+    </div>`).join('');
+
+  document.getElementById('result').innerHTML=`
+    <div class="hero">
+      <div>
+        <div class="biglbl">「${d.keyword}」 월간 검색량${demo?'<span class="demo-tag">데모 데이터</span>':''}</div>
+        <div class="big">${fmt(d.monthly_total)}<span class="unit">회/월</span></div>
+      </div>
+      <div style="flex:1;min-width:200px">
+        <div class="badges">
+          <div class="badge">경쟁정도 <b>${d.comp_idx||'-'}</b></div>
+          <div class="badge">성장률 <b style="color:${d.growth_pct>=0?'#3E9E84':'#D94B2B'}">${d.growth_pct>0?'+':''}${d.growth_pct}%</b></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><span class="dot"></span>디바이스 비중</h3>
+      <div class="devbar">
+        <div class="pc" style="width:${d.device_split.pc}%">${d.device_split.pc>=10?`<span>PC ${d.device_split.pc}%</span>`:''}</div>
+        <div class="mo" style="width:${d.device_split.mobile}%">${d.device_split.mobile>=10?`<span>모바일 ${d.device_split.mobile}%</span>`:''}</div>
+      </div>
+      <div class="devleg">
+        <span><i style="background:var(--taupe-deep)"></i>PC ${fmt(d.monthly_pc)}회</span>
+        <span><i style="background:var(--emerald)"></i>모바일 ${fmt(d.monthly_mobile)}회</span>
+      </div>
+    </div>
+
+    <div class="card trend">
+      <h3><span class="dot"></span>12개월 수요 추이</h3>
+      ${trendSVG(d.trend)}
+    </div>
+
+    <div class="card">
+      <h3><span class="dot"></span>연관 키워드 기회맵 <span style="font-size:12px;color:var(--ink-soft);font-weight:400">함께 잡을 수 있는 검색 수요</span></h3>
+      ${relRows||'<div style="color:var(--ink-soft);font-size:14px">연관 키워드가 없습니다.</div>'}
+    </div>
+
+    <div class="card sim">
+      <h3><span class="dot"></span>체험단 그로스 시뮬레이터 <span class="h3sub">가정 기반 시나리오</span></h3>
+      <div class="simwarn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D94B2B" stroke-width="2"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>
+        <p><b>아래 숫자는 실측 성과가 아니며, 시나리오입니다.</b> 또한 자사는 귀사의 매출을 보장할 수 있다는 어뷰징성 표현을 결코 쓰지 않습니다.<br>단, 이러한 유입 성장을 만들어가는 과정에 유의미한 도움을 드릴 수 있습니다.</p>
+      </div>
+      <div class="sim-controls">
+        <div class="ctrl">
+          <label>체험단 규모 <b><span id="s-n">20</span>명</b></label>
+          <input type="range" id="r-n" min="1" max="1000" value="20" oninput="simCompute()">
+        </div>
+        <div class="ctrl">
+          <label>목표 점유율 <b><span id="s-p">15</span>%</b></label>
+          <input type="range" id="r-p" min="3" max="40" value="15" oninput="simCompute()">
+        </div>
+      </div>
+      <div class="sim-out">
+        <div class="outbox"><div class="l">도달 가능 수요 (실데이터)</div><div class="v" id="o-reach">–</div>
+          <div class="capbar"><div id="o-capbar" style="width:0%"></div></div></div>
+        <div class="outbox hero-out"><div class="l">월 노출 (시나리오값)</div><div class="v" id="o-exp">–</div></div>
+        <div class="outbox"><div class="l">월 유입 (시나리오값)</div><div class="v" id="o-click">–</div></div>
+      </div>
+      <div class="assume">
+        <div class="at">가정값 · 직접 조정 가능</div>
+        <div class="assume-row">
+          <div class="ai">리뷰 1건당 노출 키워드 <input id="a-kw" value="3" oninput="simCompute()"> 개</div>
+          <div class="ai">체험단 1명당 리뷰 <input id="a-rev" value="1" oninput="simCompute()"> 건</div>
+          <div class="ai">노출→유입 전환율 <input id="a-ctr" value="3" oninput="simCompute()"> %</div>
+        </div>
+        <div class="formula" id="o-formula"></div>
+        <div class="simfoot" id="o-simfoot"></div>
+      </div>
+    </div>
+
+    <div class="note">
+      <svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1C6E5A" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/></svg>
+      <div><div class="t">진단 요약</div><p>${d.note}</p></div>
+    </div>
+
+    <div class="actions"><button class="pdf" onclick="window.print()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z"/></svg>
+      PDF로 저장</button></div>
+    <p class="foot">데이터 출처: 네이버 데이터랩(검색어트렌드) · 네이버 검색광고(키워드도구)</p>`;
+  simCompute();
+}
+
+// ── 그로스 시뮬레이터: 모두 if-then 산수 (예측 아님) ──
+function simCompute(){
+  if(!_D) return;
+  const N    = +document.getElementById('r-n').value;
+  const P    = +document.getElementById('r-p').value;
+  const kwPer= Math.max(1, +document.getElementById('a-kw').value||3);
+  const revPer=Math.max(0.1,+document.getElementById('a-rev').value||1);
+  const ctr  = Math.max(0, +document.getElementById('a-ctr').value||0);
+  document.getElementById('s-n').textContent=N;
+  document.getElementById('s-p').textContent=P;
+
+  // 수요 풀 = 메인 + 연관 키워드, 검색량 내림차순
+  const pool=[{keyword:_D.keyword,monthly:_D.monthly_total},..._D.related]
+    .sort((a,b)=>b.monthly-a.monthly);
+  const totalDemand=pool.reduce((a,k)=>a+k.monthly,0);
+
+  const reviews    = Math.round(N*revPer);
+  const coverCount = Math.min(Math.round(reviews*kwPer), pool.length);
+  const reachable  = pool.slice(0,coverCount).reduce((a,k)=>a+k.monthly,0);
+  const exposure   = Math.round(reachable*P/100);
+  const clicks     = Math.round(exposure*ctr/100);
+  const capPct     = totalDemand?Math.round(reachable/totalDemand*100):0;
+  const saturated  = coverCount >= pool.length;  // 연관 키워드를 다 덮어버린 상태
+
+  document.getElementById('o-reach').textContent=fmt(reachable)+'회';
+  document.getElementById('o-exp').textContent  =fmt(exposure)+'회';
+  document.getElementById('o-click').textContent=fmt(clicks)+'회';
+  document.getElementById('o-capbar').style.width=Math.min(100,capPct)+'%';
+  document.getElementById('o-formula').innerHTML=
+    `① 도달 가능 수요 = 체험단 <b>${N}명</b> × 리뷰 <b>${revPer}건</b> × 키워드 <b>${kwPer}개</b> → 상위 <b>${coverCount}개</b> 키워드 수요 합 = <b>${fmt(reachable)}회</b> <span style="opacity:.7">(전체 생태계 ${fmt(totalDemand)}회의 ${capPct}%)</span><br>`+
+    `② 월 노출 = 도달 가능 수요 <b>${fmt(reachable)}</b> × 목표 점유율 <b>${P}%</b> = <b>${fmt(exposure)}회</b> <span style="opacity:.7">← ${P}%는 가정값</span><br>`+
+    `③ 월 유입 = 노출 <b>${fmt(exposure)}</b> × 전환율 <b>${ctr}%</b> = <b>${fmt(clicks)}회</b> <span style="opacity:.7">← ${ctr}%는 가정값</span>`;
+
+  const caveats=[];
+  caveats.push("점유율·전환율·리뷰당 키워드 수는 실측이 아니라 사용자가 정한 가정값입니다.");
+  if(saturated) caveats.push(`현재 연관 키워드 ${pool.length}개를 이미 모두 덮어, 체험단 규모를 더 늘려도 도달 수요는 늘지 않습니다(이 키워드의 수요 상한).`);
+  if(_D._demo) caveats.push("지금은 데모 데이터라 연관 키워드 수가 적습니다. 실배포 후엔 더 많은 키워드로 계산됩니다.");
+  document.getElementById('o-simfoot').innerHTML="※ "+caveats.join(" ");
+}
+</script>
+</body>
+</html>
