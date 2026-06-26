@@ -1,4 +1,10 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "rewrites": [{ "source": "/", "destination": "/index.html" }]
+  "builds": [
+    { "src": "index.html", "use": "@vercel/static" },
+    { "src": "api/diagnose.py", "use": "@vercel/python" }
+  ],
+  "routes": [
+    { "src": "/api/diagnose", "dest": "api/diagnose.py" },
+    { "src": "/", "dest": "index.html" }
+  ]
 }
